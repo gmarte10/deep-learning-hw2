@@ -27,8 +27,6 @@ class ClassificationLoss(nn.Module):
         """
         return nn.functional.cross_entropy(logits, target)
 
-        # raise NotImplementedError("ClassificationLoss.forward() is not implemented")
-
 
 class LinearClassifier(nn.Module):
     def __init__(

@@ -42,8 +42,9 @@ def train(
     val_data = load_data("classification_data/val", shuffle=False)
 
     # create loss function and optimizer
-    loss_func = ClassificationLoss()
+    loss_func = torch.nn.CrossEntropyLoss()
     # optimizer = ...
+    optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9)
 
     global_step = 0
     metrics = {"train_acc": [], "val_acc": []}
@@ -55,31 +56,58 @@ def train(
             metrics[key].clear()
 
         model.train()
+        total_correct = 0
+        total_samples = 0
+       
 
         for img, label in train_data:
             img, label = img.to(device), label.to(device)
+            img.requires_grad_(True)
 
             # TODO: implement training step
-            raise NotImplementedError("Training step not implemented")
+            pred = model(img)
+            loss_val = loss_func(pred, label)
+            optimizer.zero_grad()
+            loss_val.backward()
+            optimizer.step()
+
+            # compute training accuracy
+            _, predicted = torch.max(pred, 1)
+            total_correct += (predicted == label).sum().item()
+            total_samples += label.size(0)
+
+            # store training accuracy
+            metrics["train_acc"].append(total_correct / total_samples)
 
             global_step += 1
 
         # disable gradient computation and switch to evaluation mode
         with torch.inference_mode():
             model.eval()
+            total_correct = 0
+            total_samples = 0
 
             for img, label in val_data:
                 img, label = img.to(device), label.to(device)
 
                 # TODO: compute validation accuracy
-                raise NotImplementedError("Validation accuracy not implemented")
+                pred = model(img)
+                _, predicted = torch.max(pred, 1)
+                total_correct += (predicted == label).sum().item()
+                total_samples += label.size(0)
+
+                # store validation accuracy
+                metrics["val_acc"].append(total_correct / total_samples)
+
 
         # log average train and val accuracy to tensorboard
         epoch_train_acc = torch.as_tensor(metrics["train_acc"]).mean()
         epoch_val_acc = torch.as_tensor(metrics["val_acc"]).mean()
 
-        raise NotImplementedError("Logging not implemented")
+        logger.add_scalar("train_accuracy", epoch_train_acc, global_step)
+        logger.add_scalar("val_accuracy", epoch_val_acc, global_step)
 
+        
         # print on first, last, every 10th epoch
         if epoch == 0 or epoch == num_epoch - 1 or (epoch + 1) % 10 == 0:
             print(
