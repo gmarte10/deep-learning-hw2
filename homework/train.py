@@ -76,16 +76,17 @@ def train(
             total_correct += (predicted == label).sum().item()
             total_samples += label.size(0)
 
-            # store training accuracy
-            metrics["train_acc"].append(total_correct / total_samples)
 
             global_step += 1
+
+        # store training accuracy
+        metrics["train_acc"].append(total_correct / total_samples)
 
         # disable gradient computation and switch to evaluation mode
         with torch.inference_mode():
             model.eval()
-            total_correct = 0
-            total_samples = 0
+            val_correct = 0
+            val_samples = 0
 
             for img, label in val_data:
                 img, label = img.to(device), label.to(device)
@@ -96,8 +97,8 @@ def train(
                 total_correct += (predicted == label).sum().item()
                 total_samples += label.size(0)
 
-                # store validation accuracy
-                metrics["val_acc"].append(total_correct / total_samples)
+            # store validation accuracy
+            metrics["val_acc"].append(total_correct / total_samples)
 
 
         # log average train and val accuracy to tensorboard
