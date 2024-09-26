@@ -144,17 +144,22 @@ class MLPClassifierDeepResidual(nn.Module):
     class Block(torch.nn.Module):
         def __init__(self, in_channels, out_channels) -> None:
             super().__init__()
-            self.linear = torch.nn.Linear(in_channels, out_channels)
-            self.norm = torch.nn.LayerNorm(out_channels)
-            self.relu = torch.nn.ReLU()
+            self.model = torch.nn.Sequential(
+                torch.nn.Linear(in_channels, out_channels),
+                torch.nn.LayerNorm(out_channels),
+                torch.nn.ReLU(),
+                torch.nn.Linear(in_channels, out_channels),
+                torch.nn.LayerNorm(out_channels),
+                torch.nn.ReLU()
+            )
+            
             if in_channels != out_channels:
                 self.skip = torch.nn.Linear(in_channels, out_channels)
             else:
                 self.skip = torch.nn.Identity()
 
         def forward(self, x) -> torch.Tensor:
-            y = self.relu(self.norm(self.linear(x)))
-            return self.skip(x) + y
+            return self.skip(x) + self.model(x)
         
     def __init__(
         self,
