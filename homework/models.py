@@ -148,7 +148,7 @@ class MLPClassifierDeepResidual(nn.Module):
                 torch.nn.Linear(in_channels, out_channels),
                 torch.nn.LayerNorm(out_channels),
                 torch.nn.ReLU(),
-                torch.nn.Linear(in_channels, out_channels),
+                torch.nn.Linear(out_channels, out_channels),
                 torch.nn.LayerNorm(out_channels),
                 torch.nn.ReLU()
             )
@@ -182,13 +182,14 @@ class MLPClassifierDeepResidual(nn.Module):
         super().__init__()
         layers = []
         layers.append(torch.nn.Flatten())
-        c = h * w * 3
-        layers.append(torch.nn.Linear(c, hidden_dim, bias=False))
-        c = hidden_dim
-        for s in range(num_layers):
-            layers.append(self.Block(c, s))
-            c = s
-        layers.append(torch.nn.Linear(c, num_classes, bias=False))
+        input_dim = h * w * 3
+        layers.append(torch.nn.Linear(input_dim, hidden_dim, bias=False))
+    
+        for _ in range(num_layers):
+            layers.append(self.Block(hidden_dim, hidden_dim))
+    
+           
+        layers.append(torch.nn.Linear(hidden_dim, num_classes, bias=False))
         self.model = nn.Sequential(*layers)
 
 
