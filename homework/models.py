@@ -42,7 +42,8 @@ class LinearClassifier(nn.Module):
             num_classes: int, number of classes
         """
         super().__init__()
-        self.fc1 = torch.nn.Linear(h * w * 3, num_classes)
+        self.fc1 = torch.nn.Linear(h * w * 3, 128)
+        self.fc2 = torch.nn.Linear(128, num_classes)
 
         
 
@@ -55,6 +56,8 @@ class LinearClassifier(nn.Module):
             tensor (b, num_classes) logits
         """
         x = x.view(x.size(0), -1)
+        x = self.fc1(x)
+        x = self.fc2(x)
         return x
 
 class MLPClassifier(nn.Module):
@@ -73,8 +76,10 @@ class MLPClassifier(nn.Module):
             num_classes: int, number of classes
         """
         super().__init__()
+        self.fc1 = torch.nn.Linear(h * w * 3, 128)
+        self.fc2 = torch.nn.Linear(128, num_classes)
+        self.act = torch.nn.ReLU()
 
-        raise NotImplementedError("MLPClassifier.__init__() is not implemented")
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -84,7 +89,10 @@ class MLPClassifier(nn.Module):
         Returns:
             tensor (b, num_classes) logits
         """
-        raise NotImplementedError("MLPClassifier.forward() is not implemented")
+        x = self.fc1(x)
+        x = self.act(x)
+        x = self.fc2(x)
+        return x
 
 
 class MLPClassifierDeep(nn.Module):
