@@ -10,6 +10,9 @@ from .models import ClassificationLoss, load_model, save_model
 from .utils import load_data
 
 
+# Used AI to debug and understand why my validation accuracy was incorrect
+# and how to properly get the mean.
+
 def train(
     exp_dir: str = "logs",
     model_name: str = "linear",
@@ -62,7 +65,6 @@ def train(
 
         for img, label in train_data:
             img, label = img.to(device), label.to(device)
-            img.requires_grad_(True)
 
             # TODO: implement training step
             pred = model(img)
@@ -94,11 +96,11 @@ def train(
                 # TODO: compute validation accuracy
                 pred = model(img)
                 _, predicted = torch.max(pred, 1)
-                total_correct += (predicted == label).sum().item()
-                total_samples += label.size(0)
+                val_correct += (predicted == label).sum().item()
+                val_samples += label.size(0)
 
             # store validation accuracy
-            metrics["val_acc"].append(total_correct / total_samples)
+            metrics["val_acc"].append(val_correct / val_samples)
 
 
         # log average train and val accuracy to tensorboard

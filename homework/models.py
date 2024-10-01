@@ -27,7 +27,7 @@ class ClassificationLoss(nn.Module):
         """
         return nn.functional.cross_entropy(logits, target)
 
-
+# Used AI to figure out and understand how and why I had to flatten x before plugging it in.
 class LinearClassifier(nn.Module):
     def __init__(
         self,
@@ -94,7 +94,7 @@ class MLPClassifier(nn.Module):
         x = self.fc2(x)
         return x
 
-
+# Used AI to figure out and understand the loop that creates the layers.
 class MLPClassifierDeep(nn.Module):
     def __init__(
         self,
@@ -139,7 +139,8 @@ class MLPClassifierDeep(nn.Module):
         """
         return self.model(x)
 
-
+# Used AI to debug and understand how to use the in and out channels.
+# I also used it to understand the skip if-else portion.
 class MLPClassifierDeepResidual(nn.Module):
     class Block(torch.nn.Module):
         def __init__(self, in_channels, out_channels) -> None:

@@ -5,6 +5,9 @@ import torch
 import torch.utils.tensorboard as tb
 
 
+# Used AI to understand and debug why I was having an issue with getting the mean in the
+# validation loop. I also used it to understand how to use the global step in the validation
+# loop as well.
 def test_logging(logger: tb.SummaryWriter):
     """
     Your code here - finish logging the dummy loss and accuracy
